@@ -9,9 +9,9 @@ class NeuralNet:
         self.learningRate = learningRate
 
         # Weight initialization
-        self.w_ih = np.asarray([[0.15, 0.25],[0.2, 0.3], [0.35, 0.35]]) #np.random.randn(nInput + 1, nHiddenNodes)
+        self.w_ih = np.random.randn(nInput + 1, nHiddenNodes)
         #print(self.w_ih)
-        self.w_ho = np.asarray([[0.4, 0.5],[0.45, 0.55], [0.6, 0.6]]) #np.random.randn(nHiddenNodes+1, nOutput)
+        self.w_ho = np.random.randn(nHiddenNodes+1, nOutput)
         #print(self.w_ho)
         self.w_h = [np.random.randn(nHiddenNodes+1, nHiddenNodes) for x in range(0, nHiddenLayers)]
         #print(self.w_h[0])
@@ -62,6 +62,7 @@ class NeuralNet:
                 d_out = self.activationPrime(self.l_h[0])[:-1]
                 delta.append(X[:,None] * (d_error*d_out))
         self.w_ho[:-1] -= delta[0] * self.learningRate
+        print(self.w_ho)
         self.w_ih[:-1] -= delta[1] * self.learningRate
         print(self.w_ih)
 
@@ -70,8 +71,7 @@ class NeuralNet:
         print("Total error = ", np.sum(self.error(y, o)))
         self.backward(X, y, o)
 
-nn = NeuralNet(nInput=2, nOutput=2, nHiddenLayers=1, nHiddenNodes=2, learningRate=0.5)
+# ["Card Number", "Location", "Number of Players"]
+nn = NeuralNet(nInput=3, nOutput=1, nHiddenNodes=2, learningRate=0.01)
 
-#print(nn.forward(np.asarray([0.05, 0.1])))
-
-nn.train(np.asarray([0.05, 0.1]), np.asarray([0.01, 0.99]))
+print(nn.forward(np.asarray([2, 3, 5])))
