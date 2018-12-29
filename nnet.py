@@ -9,11 +9,11 @@ class NeuralNet:
         self.learningRate = learningRate
 
         # Weight initialization
-        self.w_ih = np.random.randn(nInput, nHiddenNodes)
+        self.w_ih = np.asarray([[0.15, 0.25],[0.2, 0.3], [0.35, 0.35]]) #np.random.randn(nInput + 1, nHiddenNodes)
         #print(self.w_ih)
-        self.w_ho = np.random.randn(nHiddenNodes, nOutput)
+        self.w_ho = np.asarray([[0.4, 0.5],[0.45, 0.55], [0.6, 0.6]]) #np.random.randn(nHiddenNodes+1, nOutput)
         #print(self.w_ho)
-        self.w_h = [np.random.randn(nHiddenNodes, nHiddenNodes) for x in range(0, nHiddenLayers)]
+        self.w_h = [np.random.randn(nHiddenNodes+1, nHiddenNodes) for x in range(0, nHiddenLayers)]
         #print(self.w_h[0])
         self.l_h = []
 
@@ -30,58 +30,48 @@ class NeuralNet:
 
     # Gives the predicted output
     def forward(self, X):
-        self.l_h.append(np.dot(X, self.w_ih)) # Initalize the first hidden layer
+        self.l_h.append(np.dot(np.append(X, 1), self.w_ih)) # Initalize the first hidden layer
         self.l_h[0] = self.activation(self.l_h[0]) # Apply activation function
-
+        self.l_h[0] = np.append(self.l_h[0], 1)
+        
+        # Fix for biases cause they don't work
         for x in range(1, self.n_h_layers):
             self.l_h.append(np.dot(self.l_h[x-1], self.w_h[x-1])) # dot the previous hidden layer with the weight to get new layer
             self.l_h[x] = self.activation(self.l_h[x])  # apply activation funciton
-        
-        print("w_ho \n", self.w_ho)
+            self.l_h[x] = np.append(self.l_h[x], 1) # add 1 for the bias
+
         o = np.dot(self.l_h[self.n_h_layers - 1], self.w_ho) # Calc the output layer from last hidden layer
+        #print(self.l_h[self.n_h_layers - 1])
+        #print(self.w_ho)
+        #print(o)
         o = self.activation(o) # Apply last activation function
         return o
     
     # Backprops comparing and readjusting to y
     def backward(self, X, y, o):
-        o_error = y - o
-        o_delta = o_error * self.activationPrime(o)
-        print("o__delta \n", o_delta)
-        print("l_h[n_h_layers].T dot o_delta \n",np.dot(self.l_h[self.n_h_layers - 1][:,None], o_delta))
-        print("w_ho \n", self.w_ho)
-        print("self.l_h[n_h_layers - 1] \n", self.l_h[self.n_h_layers - 1])
-        print("self.l_h[n_h_layers - 1].T \n", self.l_h[self.n_h_layers - 1][:,None].shape)
-        print(o_delta.shape)
-        self.w_ho += np.dot(self.l_h[self.n_h_layers - 1][:,None], o_delta)[:,None]
-
+        delta = []
+        d_error = (o - y)
+        d_out = self.activationPrime(o) # 
+        delta.append(self.l_h[self.n_h_layers - 1][:-1][:,None] * (d_error * d_out))
+        #self.w_ho[:-1] -= delta[0] * self.learningRate
+        #print(self.w_ho)
         for x in reversed(range(self.n_h_layers)):
-            print("x : ", x)
-            if x == self.n_h_layers - 1:
-                h_error = np.dot(o_error, self.w_ho.T)
-                h_delta = h_error * self.activationPrime(self.l_h[x])
-
-            h_error = np.dot(h_error, self.w_h[x].T)
-            h_delta = h_error * self.activationPrime(self.l_h[x])
-            self.w_h[x] += np.dot(self.l_h[x].T, h_delta)
-        
-        print("w_ih \n", self.w_ih)
-        print("w_ih.T \n", self.w_ih.T)
-
-        i_error = np.dot(h_error, self.w_h[0].T)
-        i_delta = i_error * self.activationPrime(self.l_h[0])
-        print("i_delta\n",i_delta)
-        print("i_delta.T\n", i_delta.T)
-        print("X \n", X)
-        print("X.T \n", X[:,None])
-        print("X.T dot i_delta \n", np.dot(np.asmatrix(X).T, np.asmatrix(i_delta)))
-        self.w_ih += np.dot(X[:,None], i_delta)
+            if x == 0:
+                d_error = d_error * d_out
+                d_error = np.dot(d_error, self.w_ho[:-1].T)
+                d_out = self.activationPrime(self.l_h[0])[:-1]
+                delta.append(X[:,None] * (d_error*d_out))
+        self.w_ho[:-1] -= delta[0] * self.learningRate
+        self.w_ih[:-1] -= delta[1] * self.learningRate
+        print(self.w_ih)
 
     def train(self, X, y):
         o = self.forward(X)
+        print("Total error = ", np.sum(self.error(y, o)))
         self.backward(X, y, o)
 
-nn = NeuralNet(nInput=2, nOutput=1, nHiddenLayers=3, nHiddenNodes=3)
+nn = NeuralNet(nInput=2, nOutput=2, nHiddenLayers=1, nHiddenNodes=2, learningRate=0.5)
 
-#print(nn.forward(np.asarray([1, 2])))
+#print(nn.forward(np.asarray([0.05, 0.1])))
 
-nn.train(np.asarray([1, 2]), np.asarray([1]))
+nn.train(np.asarray([0.05, 0.1]), np.asarray([0.01, 0.99]))
