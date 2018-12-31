@@ -1,4 +1,4 @@
-import nnet
+import nnet as nn
 import game
 import numpy as np
 
@@ -11,31 +11,60 @@ y = [[0],
      [0],
      [1]]
 
-game = game.Gameplay()
-nn = nnet.NeuralNet(nInput=2, nOutput=1, nHiddenNodes=2, learningRate=0.01)
+game = game.Gameplay(nPlayers=2)
+nn = nn.NeuralNet(nInput=3, nOutput=1, nHiddenNodes=2, learningRate=0.5 )
 
-for x in range(0, 10000):
-    print("X:", X[x%4])
-    print("y:", y[x%4])
-    nn.train(np.asarray(X[x%4]), np.asarray(y[x%4]))
+win = 0
+lose = 0
+for x in range(0, 600000):
+    game.start()
+    info = game.getInfo()
+    #print(info)
+    move = nn.forward(np.asarray(info))
+    if move > 0.5:
+        move = 1
+    else:
+        move = 0
 
-#win = 0
-#lose = 0
-#for x in range(0, 100000):
-#    info = game.start()
-#    if nn.forward(np.asarray(info)) > 0.5:
-#        outcome = game.play(1)
-#    else:
-#        outcome = 1
-#    print(outcome)
-#    if outcome == 0:
-#        print("win")
-#        win += 1
-#    else:
-#        print("lose")
-#        lose += 1
-#        print(info)
-#    nn.train(np.asarray(info), np.asarray(int(outcome)))
-#
-#print(win)
-#print(lose)
+    outcome = game.play(move)
+
+    if outcome == 1:
+        #print("win")
+        win += 1
+        nn.train(np.asarray(info), np.asarray(move))
+    else:
+        #print("lose")
+        lose += 1
+        nn.train(np.asarray(info), np.asarray(1 - move))
+
+print(nn.forward(np.asarray([2, 0, 0])))
+print(nn.forward(np.asarray([2, 0, 1])))
+print(nn.forward(np.asarray([2, 0, 2])))
+print(nn.forward(np.asarray([2, 0, 3])))
+print(nn.forward(np.asarray([2, 0, 4])))
+print(nn.forward(np.asarray([2, 0, 5])))
+print(nn.forward(np.asarray([2, 0, 6])))
+print(nn.forward(np.asarray([2, 0, 7])))
+print(nn.forward(np.asarray([2, 0, 8])))
+print(nn.forward(np.asarray([2, 0, 9])))
+print(nn.forward(np.asarray([2, 0, 10])))
+print(nn.forward(np.asarray([2, 0, 11])))
+print(nn.forward(np.asarray([2, 0, 12])))
+
+print("dealer")
+print(nn.forward(np.asarray([2, 1, 0])))
+print(nn.forward(np.asarray([2, 1, 1])))
+print(nn.forward(np.asarray([2, 1, 2])))
+print(nn.forward(np.asarray([2, 1, 3])))
+print(nn.forward(np.asarray([2, 1, 4])))
+print(nn.forward(np.asarray([2, 1, 5])))
+print(nn.forward(np.asarray([2, 1, 6])))
+print(nn.forward(np.asarray([2, 1, 7])))
+print(nn.forward(np.asarray([2, 1, 8])))
+print(nn.forward(np.asarray([2, 1, 9])))
+print(nn.forward(np.asarray([2, 1, 10])))
+print(nn.forward(np.asarray([2, 1, 11])))
+print(nn.forward(np.asarray([2, 1, 12])))
+
+print(win)
+print(lose)
