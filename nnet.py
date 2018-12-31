@@ -69,5 +69,5 @@ class NeuralNet:
 
     def train(self, X, y):
         o = self.forward(X)
-        print("Total error = ", np.sum(self.error(y, o)))
+        #print("Total error = ", np.sum(self.error(y, o)))
         self.backward(X, y, o)

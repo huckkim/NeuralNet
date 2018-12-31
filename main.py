@@ -12,7 +12,7 @@ y = [[0],
      [1]]
 
 game = game.Gameplay(nPlayers=2)
-nn = nn.NeuralNet(nInput=3, nOutput=1, nHiddenNodes=2, learningRate=0.5 )
+nn = nn.NeuralNet(nInput=3, nOutput=1, nHiddenNodes=18, learningRate=1 )
 
 win = 0
 lose = 0
