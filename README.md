@@ -1,6 +1,5 @@
 # NeuralNet
-Basic neural network made from scratch in python
-
+Basic neural network made from scratch in python that plays a simple card game.
 ## Goal
 The goal of this project was to try making a neural net from scratch to predict the optimal moves for a very simple card game. It would go through multiple learning cycles to create a list of parameters on when to "pass" the ace. It would give percentage for each corresponding card on when to pass. 
 ## Rules of the Game
